@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.rastreadorprazo.data.AppDatabase
 import com.example.rastreadorprazo.data.Obrigacao
 import com.example.rastreadorprazo.data.ObrigacaoRepository
+import com.example.rastreadorprazo.data.SettingsRepository
 import com.example.rastreadorprazo.data.StatusObrigacao
 import com.example.rastreadorprazo.notification.NotificationHelper
 import com.example.rastreadorprazo.notification.ReminderScheduler
@@ -28,12 +29,16 @@ enum class FiltroStatus(val rotulo: String) {
 class ObrigacoesViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = ObrigacaoRepository(AppDatabase.getInstance(application).obrigacaoDao())
+    private val settingsRepository = SettingsRepository(application)
 
     private val _filtro = MutableStateFlow(FiltroStatus.TODAS)
     val filtro: StateFlow<FiltroStatus> = _filtro.asStateFlow()
 
     private val _busca = MutableStateFlow("")
     val busca: StateFlow<String> = _busca.asStateFlow()
+
+    val todasObrigacoes: StateFlow<List<Obrigacao>> = repository.observarTodas()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val obrigacoes: StateFlow<List<Obrigacao>> = combine(
         repository.observarTodas(),
@@ -67,7 +72,11 @@ class ObrigacoesViewModel(application: Application) : AndroidViewModel(applicati
     fun salvar(obrigacao: Obrigacao) {
         viewModelScope.launch {
             val id = repository.salvar(obrigacao)
-            ReminderScheduler.agendar(getApplication(), obrigacao.copy(id = id))
+            if (settingsRepository.notificacoesGlobaisAtivas()) {
+                ReminderScheduler.agendar(getApplication(), obrigacao.copy(id = id))
+            } else {
+                ReminderScheduler.cancelar(getApplication(), id)
+            }
         }
     }
 

@@ -7,13 +7,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.rastreadorprazo.data.StatusObrigacao
-
-private val CorPendente = Color(0xFFFFA000)
-private val CorPaga = Color(0xFF2E7D32)
-private val CorCancelada = Color(0xFF757575)
+import com.example.rastreadorprazo.ui.theme.CorCancelada
+import com.example.rastreadorprazo.ui.theme.CorPaga
+import com.example.rastreadorprazo.ui.theme.CorPendente
 
 @Composable
 fun StatusChip(status: StatusObrigacao) {

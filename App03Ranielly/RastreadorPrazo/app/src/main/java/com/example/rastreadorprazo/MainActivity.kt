@@ -9,11 +9,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.rastreadorprazo.data.TemaModo
 import com.example.rastreadorprazo.notification.NotificationHelper
+import com.example.rastreadorprazo.ui.AjustesViewModel
 import com.example.rastreadorprazo.ui.navigation.AppNavHost
 import com.example.rastreadorprazo.ui.theme.RastreadorPrazoTheme
 
@@ -34,7 +39,14 @@ class MainActivity : ComponentActivity() {
         pendingObrigacaoId = extrairObrigacaoId(intent)
 
         setContent {
-            RastreadorPrazoTheme {
+            val ajustesViewModel: AjustesViewModel = viewModel()
+            val temaModo by ajustesViewModel.temaModo.collectAsState()
+            val temaEscuro = when (temaModo) {
+                TemaModo.SISTEMA -> isSystemInDarkTheme()
+                TemaModo.CLARO -> false
+                TemaModo.ESCURO -> true
+            }
+            RastreadorPrazoTheme(darkTheme = temaEscuro) {
                 AppNavHost(
                     pendingObrigacaoId = pendingObrigacaoId,
                     onPendingConsumido = { pendingObrigacaoId = null }

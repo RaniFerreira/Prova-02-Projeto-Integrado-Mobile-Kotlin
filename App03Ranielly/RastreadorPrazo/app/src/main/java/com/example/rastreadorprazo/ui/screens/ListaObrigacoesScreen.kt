@@ -65,7 +65,7 @@ fun ListaObrigacoesScreen(navController: NavController, viewModel: ObrigacoesVie
             )
         },
         bottomBar = {
-            AppBottomBar(rotaAtual = Rotas.LISTA, onInicioClick = {})
+            AppBottomBar(navController = navController, rotaAtual = Rotas.LISTA)
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { navController.navigate(Rotas.FORM_NOVA) }) {
