@@ -2,8 +2,10 @@ package com.example.app_leituras.ui.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -38,7 +40,8 @@ fun CardLivro(
 ) {
     Card(
         onClick = onClick,
-        modifier = modifier.width(LARGURA_CARD_DP.dp),
+        // width() fica fora de `modifier` para a largura ser fixa, não sobrescrita por fillMaxWidth()/weight() do chamador.
+        modifier = Modifier.width(LARGURA_CARD_DP.dp).then(modifier),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
@@ -139,5 +142,31 @@ private fun CardLivroLidoPreview() {
             status = StatusLeitura.LIDO,
             modifier = Modifier.padding(16.dp)
         )
+    }
+}
+
+@Preview(name = "Largura consistente", showBackground = true)
+@Composable
+private fun CardLivroLarguraConsistentePreview() {
+    AppLeiturasTheme {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(16.dp)
+        ) {
+            CardLivro(
+                titulo = "Ágil",
+                autor = "Kent",
+                capaUrl = null,
+                status = StatusLeitura.QUERO_LER
+            )
+            CardLivro(
+                titulo = "O Extraordinário e Longuíssimo Título de um Livro Fictício Para Testar o Layout",
+                autor = "Um Autor Com Nome Bastante Comprido Sobrenome",
+                capaUrl = null,
+                status = StatusLeitura.LENDO,
+                paginaAtual = 42,
+                totalPaginas = 500
+            )
+        }
     }
 }
