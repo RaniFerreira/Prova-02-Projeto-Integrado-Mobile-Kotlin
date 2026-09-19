@@ -110,6 +110,9 @@ class FakeLivroRepository : LivroRepository {
             }
         }
 
+    override fun observarLivro(id: Long): Flow<Livro?> =
+        _livros.map { lista -> lista.firstOrNull { it.id == id } }
+
     override suspend fun buscar(id: Long): Livro? = _livros.value.firstOrNull { it.id == id }
 
     override suspend fun salvar(livro: Livro): Long {

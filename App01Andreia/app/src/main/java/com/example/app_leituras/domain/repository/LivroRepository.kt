@@ -10,6 +10,9 @@ interface LivroRepository {
 
     fun observarLivrosFiltrados(genero: String?, status: StatusLeitura?): Flow<List<Livro>>
 
+    /** Observa um único livro (ex.: Book Detail), refletindo mudanças de status em tempo real. */
+    fun observarLivro(id: Long): Flow<Livro?>
+
     suspend fun buscar(id: Long): Livro?
 
     suspend fun salvar(livro: Livro): Long

@@ -29,7 +29,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppLeiturasTheme {
+            // Tema sempre claro: ignora o tema escuro do sistema, seguindo o protótipo do Figma.
+            AppLeiturasTheme(darkTheme = false) {
                 AppLeituras(livroRepository = livroRepository)
             }
         }
@@ -45,7 +46,10 @@ private fun AppLeituras(livroRepository: LivroRepository) {
         DashboardScreen(
             viewModel = dashboardViewModel,
             modifier = Modifier.padding(innerPadding),
-            onLivroClick = { livroId -> Log.d(TAG, "Livro clicado: $livroId") }
+            onLivroClick = { livroId -> Log.d(TAG, "Livro clicado: $livroId") },
+            // TODO: navegar para a tela de busca (Buscar Livro, node 145:33 no Figma) quando a
+            // navegação for configurada; o fluxo lá permite buscar e depois cadastrar o livro.
+            onAdicionarLivroClick = { Log.d(TAG, "Adicionar livro clicado") }
         )
     }
 }

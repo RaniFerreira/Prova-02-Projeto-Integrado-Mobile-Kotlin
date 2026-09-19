@@ -6,14 +6,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,12 +25,14 @@ import androidx.compose.ui.unit.sp
 import com.example.app_leituras.domain.model.StatusLeitura
 import com.example.app_leituras.ui.theme.AppLeiturasTheme
 
-private const val LARGURA_CARD_DP = 150
+private const val LARGURA_CONTEUDO_DP = 160
 
+// Card horizontal da seção "Em andamento" (ícone + conteúdo), conforme o Figma.
 @Composable
 fun CardLivro(
     titulo: String,
     autor: String,
+    genero: String,
     capaUrl: String?,
     status: StatusLeitura,
     modifier: Modifier = Modifier,
@@ -40,40 +42,45 @@ fun CardLivro(
 ) {
     Card(
         onClick = onClick,
-        // width() fica fora de `modifier` para a largura ser fixa, não sobrescrita por fillMaxWidth()/weight() do chamador.
-        modifier = Modifier.width(LARGURA_CARD_DP.dp).then(modifier),
+        modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
-        )
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier.padding(8.dp)) {
-            CapaLivro(capaUrl = capaUrl)
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            IconeLivro(capaUrl = capaUrl)
 
-            Text(
-                text = titulo,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-            Text(
-                text = autor,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(top = 2.dp, bottom = 6.dp)
-            )
-
-            StatusBadge(status = status)
-
-            if (status == StatusLeitura.LENDO && totalPaginas > 0) {
-                BarraProgresso(
-                    percentual = paginaAtual.toFloat() / totalPaginas.toFloat(),
-                    paginaAtual = paginaAtual,
-                    totalPaginas = totalPaginas,
-                    modifier = Modifier.padding(top = 8.dp)
+            Column(
+                modifier = Modifier.width(LARGURA_CONTEUDO_DP.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = titulo,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
+                Text(
+                    text = autor,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                TagGenero(texto = genero)
+
+                if (status == StatusLeitura.LENDO && totalPaginas > 0) {
+                    BarraProgresso(
+                        percentual = paginaAtual.toFloat() / totalPaginas.toFloat(),
+                        paginaAtual = paginaAtual,
+                        totalPaginas = totalPaginas
+                    )
+                }
             }
         }
     }
@@ -82,20 +89,34 @@ fun CardLivro(
 // TODO: quando a busca via Google Books API for integrada (item 10 do planejamento),
 // trocar este placeholder por um carregador de imagem (ex.: Coil) usando capaUrl.
 @Composable
-private fun CapaLivro(capaUrl: String?) {
+private fun IconeLivro(capaUrl: String?) {
     Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(3f / 4f)
+            .size(40.dp)
             .background(
                 color = MaterialTheme.colorScheme.secondaryContainer,
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(10.dp)
             ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = "📖",
-            fontSize = 32.sp
+            fontSize = 20.sp
+        )
+    }
+}
+
+@Composable
+private fun TagGenero(texto: String) {
+    Surface(
+        shape = RoundedCornerShape(50),
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+    ) {
+        Text(
+            text = texto,
+            style = MaterialTheme.typography.labelSmall,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
         )
     }
 }
@@ -108,6 +129,7 @@ private fun CardLivroLendoPreview() {
         CardLivro(
             titulo = "O Nome do Vento",
             autor = "Patrick Rothfuss",
+            genero = "Fantasia",
             capaUrl = null,
             status = StatusLeitura.LENDO,
             paginaAtual = 126,
@@ -124,6 +146,7 @@ private fun CardLivroQueroLerPreview() {
         CardLivro(
             titulo = "Duna",
             autor = "Frank Herbert",
+            genero = "Ficção Científica",
             capaUrl = null,
             status = StatusLeitura.QUERO_LER,
             modifier = Modifier.padding(16.dp)
@@ -138,6 +161,7 @@ private fun CardLivroLidoPreview() {
         CardLivro(
             titulo = "1984",
             autor = "George Orwell",
+            genero = "Ficção",
             capaUrl = null,
             status = StatusLeitura.LIDO,
             modifier = Modifier.padding(16.dp)
@@ -145,7 +169,7 @@ private fun CardLivroLidoPreview() {
     }
 }
 
-@Preview(name = "Largura consistente", showBackground = true)
+@Preview(name = "Largura por conteúdo", showBackground = true)
 @Composable
 private fun CardLivroLarguraConsistentePreview() {
     AppLeiturasTheme {
@@ -156,12 +180,14 @@ private fun CardLivroLarguraConsistentePreview() {
             CardLivro(
                 titulo = "Ágil",
                 autor = "Kent",
+                genero = "Tecnologia",
                 capaUrl = null,
                 status = StatusLeitura.QUERO_LER
             )
             CardLivro(
                 titulo = "O Extraordinário e Longuíssimo Título de um Livro Fictício Para Testar o Layout",
                 autor = "Um Autor Com Nome Bastante Comprido Sobrenome",
+                genero = "Ficção Científica",
                 capaUrl = null,
                 status = StatusLeitura.LENDO,
                 paginaAtual = 42,
