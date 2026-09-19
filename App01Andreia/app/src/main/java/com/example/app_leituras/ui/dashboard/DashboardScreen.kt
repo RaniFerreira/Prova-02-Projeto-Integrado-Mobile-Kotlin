@@ -1,39 +1,54 @@
 package com.example.app_leituras.ui.dashboard
 
 import android.content.res.Configuration
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.app_leituras.domain.model.Livro
 import com.example.app_leituras.domain.model.StatusLeitura
 import com.example.app_leituras.ui.components.CardLivro
+import com.example.app_leituras.ui.components.ItemLivroLista
 import com.example.app_leituras.ui.theme.AppLeiturasTheme
 
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel,
     modifier: Modifier = Modifier,
-    onLivroClick: (Long) -> Unit = {}
+    onLivroClick: (Long) -> Unit = {},
+    onAdicionarLivroClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     DashboardContent(
         uiState = uiState,
         onLivroClick = onLivroClick,
+        onAdicionarLivroClick = onAdicionarLivroClick,
         modifier = modifier
     )
 }
@@ -42,55 +57,157 @@ fun DashboardScreen(
 private fun DashboardContent(
     uiState: DashboardUiState,
     onLivroClick: (Long) -> Unit,
+    onAdicionarLivroClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+            .padding(top = 24.dp, bottom = 40.dp, start = 20.dp, end = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(28.dp)
     ) {
-        SecaoLivros(titulo = "Em andamento", livros = uiState.emAndamento, onLivroClick = onLivroClick)
-        SecaoLivros(titulo = "Quero Ler", livros = uiState.queroLer, onLivroClick = onLivroClick)
-        SecaoLivros(titulo = "Lido", livros = uiState.lido, onLivroClick = onLivroClick)
+        CabecalhoTela()
+        SecaoEmAndamento(livros = uiState.emAndamento, onLivroClick = onLivroClick)
+        SecaoListaLivros(
+            titulo = "Quero Ler",
+            livros = uiState.queroLer,
+            concluido = false,
+            onLivroClick = onLivroClick,
+            onAdicionarClick = onAdicionarLivroClick
+        )
+        SecaoListaLivros(
+            titulo = "Lido",
+            livros = uiState.lido,
+            concluido = true,
+            onLivroClick = onLivroClick
+        )
+    }
+}
+
+// Cabeçalho da tela ("Olá, boa leitura!" / "Início"), conforme o Header do Figma.
+@Composable
+private fun CabecalhoTela() {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(
+            text = "Olá, boa leitura!",
+            style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Início",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
 @Composable
-private fun SecaoLivros(
-    titulo: String,
+private fun CabecalhoSecao(titulo: String, onAdicionarClick: (() -> Unit)? = null) {
+    if (onAdicionarClick == null) {
+        Text(
+            text = titulo,
+            style = MaterialTheme.typography.titleLarge
+        )
+    } else {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = titulo,
+                style = MaterialTheme.typography.titleLarge
+            )
+            BotaoAdicionar(onClick = onAdicionarClick)
+        }
+    }
+}
+
+// Botão "+" ao lado de "Quero Ler" — leva para a busca de livro e depois adiciona ao catálogo.
+@Composable
+private fun BotaoAdicionar(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(20.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.primary)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "+",
+            color = Color.White,
+            fontSize = 14.sp,
+            lineHeight = 14.sp,
+            fontWeight = FontWeight.Bold,
+            style = LocalTextStyle.current.copy(
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            )
+        )
+    }
+}
+
+@Composable
+private fun TextoSecaoVazia() {
+    Text(
+        text = "Nenhum livro por aqui ainda",
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}
+
+// Seção "Em andamento": cards horizontais em uma LazyRow, como no card do Figma.
+@Composable
+private fun SecaoEmAndamento(
     livros: List<Livro>,
     onLivroClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        Text(
-            text = titulo,
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        CabecalhoSecao(titulo = "Em andamento")
         if (livros.isEmpty()) {
-            Text(
-                text = "Nenhum livro por aqui ainda",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-            )
+            TextoSecaoVazia()
         } else {
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.padding(top = 8.dp)
-            ) {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(livros, key = { it.id }) { livro ->
                     CardLivro(
                         titulo = livro.titulo,
                         autor = livro.autor,
+                        genero = livro.genero,
                         capaUrl = livro.capaUrl,
                         status = livro.status,
                         paginaAtual = livro.paginaAtual,
                         totalPaginas = livro.totalPaginas,
+                        onClick = { onLivroClick(livro.id) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+// Seções "Quero Ler" e "Lido": lista vertical de itens (sem card), como no Figma.
+@Composable
+private fun SecaoListaLivros(
+    titulo: String,
+    livros: List<Livro>,
+    concluido: Boolean,
+    onLivroClick: (Long) -> Unit,
+    onAdicionarClick: (() -> Unit)? = null,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        CabecalhoSecao(titulo = titulo, onAdicionarClick = onAdicionarClick)
+        if (livros.isEmpty()) {
+            TextoSecaoVazia()
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                livros.forEach { livro ->
+                    ItemLivroLista(
+                        titulo = livro.titulo,
+                        autor = livro.autor,
+                        concluido = concluido,
                         onClick = { onLivroClick(livro.id) }
                     )
                 }
@@ -149,7 +266,8 @@ private fun DashboardContentPreview() {
                 queroLer = livrosMock.filter { it.status == StatusLeitura.QUERO_LER },
                 lido = livrosMock.filter { it.status == StatusLeitura.LIDO }
             ),
-            onLivroClick = {}
+            onLivroClick = {},
+            onAdicionarLivroClick = {}
         )
     }
 }
@@ -160,7 +278,8 @@ private fun DashboardContentVazioPreview() {
     AppLeiturasTheme {
         DashboardContent(
             uiState = DashboardUiState(),
-            onLivroClick = {}
+            onLivroClick = {},
+            onAdicionarLivroClick = {}
         )
     }
 }
