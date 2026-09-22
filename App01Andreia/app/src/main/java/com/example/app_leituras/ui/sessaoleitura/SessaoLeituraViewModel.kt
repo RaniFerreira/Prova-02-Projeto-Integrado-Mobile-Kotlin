@@ -1,12 +1,14 @@
 package com.example.app_leituras.ui.sessaoleitura
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.app_leituras.domain.model.SessaoLeitura
 import com.example.app_leituras.domain.repository.LeituraRepository
 import com.example.app_leituras.domain.repository.LivroRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Calendar
+import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,11 +34,15 @@ data class SessaoLeituraUiState(
     val carregando: Boolean = true
 )
 
-class SessaoLeituraViewModel(
-    private val livroId: Long,
+@HiltViewModel
+class SessaoLeituraViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val livroRepository: LivroRepository,
     private val leituraRepository: LeituraRepository
 ) : ViewModel() {
+
+    // Argumento de rota (Navigation Compose), não dependência de módulo — vem do SavedStateHandle.
+    private val livroId: Long = savedStateHandle.get<Long>("livroId") ?: 0L
 
     private val _uiState = MutableStateFlow(SessaoLeituraUiState())
     val uiState: StateFlow<SessaoLeituraUiState> = _uiState.asStateFlow()
@@ -129,17 +135,5 @@ class SessaoLeituraViewModel(
         val calendarioB = Calendar.getInstance().apply { timeInMillis = instanteB }
         return calendarioA.get(Calendar.YEAR) == calendarioB.get(Calendar.YEAR) &&
             calendarioA.get(Calendar.DAY_OF_YEAR) == calendarioB.get(Calendar.DAY_OF_YEAR)
-    }
-}
-
-// Sem Hilt/Koin por enquanto: injeta os repositórios manualmente por construtor (mesmo padrão das outras telas).
-class SessaoLeituraViewModelFactory(
-    private val livroId: Long,
-    private val livroRepository: LivroRepository,
-    private val leituraRepository: LeituraRepository
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return SessaoLeituraViewModel(livroId, livroRepository, leituraRepository) as T
     }
 }

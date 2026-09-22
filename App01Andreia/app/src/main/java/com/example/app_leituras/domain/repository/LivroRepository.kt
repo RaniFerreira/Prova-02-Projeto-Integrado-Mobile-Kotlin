@@ -1,6 +1,7 @@
 package com.example.app_leituras.domain.repository
 
 import com.example.app_leituras.domain.model.Livro
+import com.example.app_leituras.domain.model.ResultadoBusca
 import com.example.app_leituras.domain.model.StatusLeitura
 import kotlinx.coroutines.flow.Flow
 
@@ -18,4 +19,7 @@ interface LivroRepository {
     suspend fun salvar(livro: Livro): Long
 
     suspend fun atualizarStatus(id: Long, status: StatusLeitura)
+
+    /** Busca livros na Google Books API. Emite Carregando -> Sucesso/Vazio/Erro. */
+    fun buscarNaApi(query: String): Flow<ResultadoBusca>
 }

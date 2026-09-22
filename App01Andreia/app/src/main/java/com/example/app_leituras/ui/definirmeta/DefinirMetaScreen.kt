@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.app_leituras.ui.components.BarraProgresso
 import com.example.app_leituras.ui.components.CardPainel
@@ -58,11 +59,7 @@ private val OPCOES_PRAZO = listOf(
 
 @Composable
 fun DefinirMetaScreen(
-    viewModel: DefinirMetaViewModel,
-    livroTitulo: String,
-    livroAutor: String,
-    paginaAtual: Int,
-    totalPaginas: Int,
+    viewModel: DefinirMetaViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
     onVoltarClick: () -> Unit = {},
     onMetaSalva: () -> Unit = {}
@@ -75,10 +72,10 @@ fun DefinirMetaScreen(
 
     DefinirMetaContent(
         uiState = uiState,
-        livroTitulo = livroTitulo,
-        livroAutor = livroAutor,
-        paginaAtual = paginaAtual,
-        totalPaginas = totalPaginas,
+        livroTitulo = uiState.livroTitulo,
+        livroAutor = uiState.livroAutor,
+        paginaAtual = uiState.paginaAtual,
+        totalPaginas = uiState.totalPaginas,
         onVoltarClick = onVoltarClick,
         onTempoPrevistoChange = viewModel::onTempoPrevistoChange,
         onDataAlvoChange = viewModel::onDataAlvoChange,

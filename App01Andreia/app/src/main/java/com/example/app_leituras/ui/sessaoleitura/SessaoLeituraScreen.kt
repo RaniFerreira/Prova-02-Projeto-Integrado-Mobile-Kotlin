@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.app_leituras.ui.components.BarraProgresso
 import com.example.app_leituras.ui.components.CardPainel
@@ -38,7 +39,7 @@ import java.util.Locale
 
 @Composable
 fun SessaoLeituraScreen(
-    viewModel: SessaoLeituraViewModel,
+    viewModel: SessaoLeituraViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
     onVoltarClick: () -> Unit = {},
     onSessaoFinalizada: () -> Unit = {}

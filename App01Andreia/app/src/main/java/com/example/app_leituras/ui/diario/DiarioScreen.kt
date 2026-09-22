@@ -31,6 +31,7 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.app_leituras.domain.model.Nota
 import com.example.app_leituras.domain.model.TipoNota
@@ -47,8 +48,7 @@ private val MESES_ABREVIADOS = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiarioScreen(
-    viewModel: DiarioViewModel,
-    tituloLivro: String,
+    viewModel: DiarioViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
     onVoltarClick: () -> Unit = {}
 ) {
@@ -56,7 +56,7 @@ fun DiarioScreen(
 
     DiarioContent(
         uiState = uiState,
-        tituloLivro = tituloLivro,
+        tituloLivro = uiState.tituloLivro,
         onVoltarClick = onVoltarClick,
         onAbrirNovaNota = viewModel::onAbrirNovaNota,
         onFecharNovaNota = viewModel::onFecharNovaNota,

@@ -1,16 +1,26 @@
 package com.example.app_leituras.ui.novolivro
 
+import android.content.Context
+import android.net.Uri
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.app_leituras.domain.model.Livro
 import com.example.app_leituras.domain.model.StatusLeitura
 import com.example.app_leituras.domain.repository.LivroRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.File
+import java.io.IOException
+import java.util.UUID
+import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 // Campos obrigatórios do formulário — usados para marcar erro visual quando vazios/inválidos.
 enum class CampoNovoLivro {
@@ -32,12 +42,14 @@ data class NovoLivroUiState(
     val livroSalvoId: Long? = null
 )
 
-class NovoLivroViewModel(
+@HiltViewModel
+class NovoLivroViewModel @Inject constructor(
     private val livroRepository: LivroRepository,
-    livroPreenchido: Livro? = null
+    @ApplicationContext private val context: Context,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(estadoInicial(livroPreenchido))
+    private val _uiState = MutableStateFlow(estadoInicial(savedStateHandle))
     val uiState: StateFlow<NovoLivroUiState> = _uiState.asStateFlow()
 
     fun onTituloChange(valor: String) {
@@ -64,6 +76,30 @@ class NovoLivroViewModel(
 
     fun onCapaChange(capaUrl: String?) {
         _uiState.update { it.copy(capaUrl = capaUrl) }
+    }
+
+    // O picker de fotos do Android só garante acesso de leitura à URI enquanto o processo do
+    // app está vivo — pra sobreviver a reaberturas do app (a capa é salva no Room e reaparece
+    // dias depois no Dashboard/Book Detail), copiamos os bytes pro armazenamento interno do app
+    // e guardamos esse caminho em vez da URI original do picker.
+    fun onCapaSelecionada(uri: Uri) {
+        viewModelScope.launch {
+            val caminhoSalvo = withContext(Dispatchers.IO) { copiarParaArmazenamentoInterno(uri) }
+            if (caminhoSalvo != null) onCapaChange(caminhoSalvo)
+        }
+    }
+
+    private fun copiarParaArmazenamentoInterno(uri: Uri): String? {
+        return try {
+            val pastaCapas = File(context.filesDir, "capas").apply { mkdirs() }
+            val destino = File(pastaCapas, "${UUID.randomUUID()}.jpg")
+            context.contentResolver.openInputStream(uri)?.use { entrada ->
+                destino.outputStream().use { saida -> entrada.copyTo(saida) }
+            } ?: return null
+            Uri.fromFile(destino).toString()
+        } catch (e: IOException) {
+            null
+        }
     }
 
     fun onSalvarClick() {
@@ -98,28 +134,22 @@ class NovoLivroViewModel(
     }
 
     private companion object {
-        fun estadoInicial(livroPreenchido: Livro?): NovoLivroUiState {
-            if (livroPreenchido == null) return NovoLivroUiState()
+        // Pré-preenchimento vindo da Buscar Livro (resultado da Google Books API) chega como
+        // argumentos de rota primitivos, não como um Livro inteiro — Livro não é o tipo certo
+        // pra passar via SavedStateHandle/Navigation Compose (não é Parcelable, e nem faria
+        // sentido: "livroPreenchido" aqui representa um LivroBusca, não um livro já cadastrado).
+        // Sem "titulo", assume cadastro manual vazio (fluxo "não encontrei" da Buscar Livro).
+        fun estadoInicial(savedStateHandle: SavedStateHandle): NovoLivroUiState {
+            val titulo = savedStateHandle.get<String>("titulo") ?: return NovoLivroUiState()
             return NovoLivroUiState(
-                titulo = livroPreenchido.titulo,
-                autor = livroPreenchido.autor,
-                totalPaginas = if (livroPreenchido.totalPaginas > 0) livroPreenchido.totalPaginas.toString() else "",
-                genero = livroPreenchido.genero.ifBlank { null },
-                status = livroPreenchido.status,
-                capaUrl = livroPreenchido.capaUrl,
-                googleBooksId = livroPreenchido.googleBooksId
+                titulo = titulo,
+                autor = savedStateHandle.get<String>("autor").orEmpty(),
+                totalPaginas = savedStateHandle.get<Int>("totalPaginas")?.takeIf { it > 0 }?.toString().orEmpty(),
+                genero = savedStateHandle.get<String>("genero")?.ifBlank { null },
+                status = StatusLeitura.QUERO_LER,
+                capaUrl = savedStateHandle.get<String>("capaUrl"),
+                googleBooksId = savedStateHandle.get<String>("googleBooksId")
             )
         }
-    }
-}
-
-// Sem Hilt/Koin por enquanto: injeta o LivroRepository manualmente por construtor (mesmo padrão do Dashboard).
-class NovoLivroViewModelFactory(
-    private val livroRepository: LivroRepository,
-    private val livroPreenchido: Livro? = null
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return NovoLivroViewModel(livroRepository, livroPreenchido) as T
     }
 }

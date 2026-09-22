@@ -1,29 +1,23 @@
 package com.example.app_leituras
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.app_leituras.data.repository.fake.FakeLivroRepository
-import com.example.app_leituras.domain.repository.LivroRepository
-import com.example.app_leituras.ui.dashboard.DashboardScreen
-import com.example.app_leituras.ui.dashboard.DashboardViewModel
-import com.example.app_leituras.ui.dashboard.DashboardViewModelFactory
+import androidx.navigation.compose.rememberNavController
+import com.example.app_leituras.ui.navigation.AppNavHost
 import com.example.app_leituras.ui.theme.AppLeiturasTheme
+import dagger.hilt.android.AndroidEntryPoint
 
-private const val TAG = "MainActivity"
-
+// Repositórios/DAOs/AppDatabase não são mais instanciados manualmente aqui — isso agora é
+// responsabilidade do Hilt (ver di/DatabaseModule.kt e di/RepositoryModule.kt); cada tela obtém
+// seu próprio ViewModel via hiltViewModel(), então o MainActivity só monta tema + NavHost.
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    // TODO: substituir por injeção via Hilt/Koin quando o DI for configurado.
-    private val livroRepository: LivroRepository = FakeLivroRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,25 +25,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             // Tema sempre claro: ignora o tema escuro do sistema, seguindo o protótipo do Figma.
             AppLeiturasTheme(darkTheme = false) {
-                AppLeituras(livroRepository = livroRepository)
+                val navController = rememberNavController()
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    AppNavHost(
+                        navController = navController,
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
             }
         }
-    }
-}
-
-@Composable
-private fun AppLeituras(livroRepository: LivroRepository) {
-    val dashboardViewModel: DashboardViewModel = viewModel(
-        factory = DashboardViewModelFactory(livroRepository)
-    )
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-        DashboardScreen(
-            viewModel = dashboardViewModel,
-            modifier = Modifier.padding(innerPadding),
-            onLivroClick = { livroId -> Log.d(TAG, "Livro clicado: $livroId") },
-            // TODO: navegar para a tela de busca (Buscar Livro, node 145:33 no Figma) quando a
-            // navegação for configurada; o fluxo lá permite buscar e depois cadastrar o livro.
-            onAdicionarLivroClick = { Log.d(TAG, "Adicionar livro clicado") }
-        )
     }
 }

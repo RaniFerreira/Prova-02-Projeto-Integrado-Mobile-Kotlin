@@ -1,6 +1,9 @@
 package com.example.app_leituras.ui.novolivro
 
 import android.content.res.Configuration
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,11 +27,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.example.app_leituras.domain.model.StatusLeitura
 import com.example.app_leituras.ui.components.ChipSelecionavel
 import com.example.app_leituras.ui.components.rotuloStatus
@@ -38,11 +44,15 @@ private val GENEROS_DISPONIVEIS = listOf("Tecnologia", "Ficção", "Ciência", "
 
 @Composable
 fun NovoLivroScreen(
-    viewModel: NovoLivroViewModel,
+    viewModel: NovoLivroViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
     onLivroSalvo: (Long) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val seletorDeImagem = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri -> uri?.let(viewModel::onCapaSelecionada) }
 
     LaunchedEffect(uiState.livroSalvoId) {
         uiState.livroSalvoId?.let(onLivroSalvo)
@@ -55,6 +65,11 @@ fun NovoLivroScreen(
         onTotalPaginasChange = viewModel::onTotalPaginasChange,
         onGeneroChange = viewModel::onGeneroChange,
         onStatusChange = viewModel::onStatusChange,
+        onEscolherCapaClick = {
+            seletorDeImagem.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        },
         onSalvarClick = viewModel::onSalvarClick,
         modifier = modifier
     )
@@ -68,6 +83,7 @@ private fun NovoLivroContent(
     onTotalPaginasChange: (String) -> Unit,
     onGeneroChange: (String) -> Unit,
     onStatusChange: (StatusLeitura) -> Unit,
+    onEscolherCapaClick: () -> Unit,
     onSalvarClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -91,7 +107,7 @@ private fun NovoLivroContent(
             )
         }
 
-        SecaoCapa(capaUrl = uiState.capaUrl)
+        SecaoCapa(capaUrl = uiState.capaUrl, onClick = onEscolherCapaClick)
 
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             OutlinedTextField(
@@ -183,12 +199,12 @@ private fun NovoLivroContent(
     }
 }
 
-// Placeholder de capa (upload de imagem ainda não integrado — ver TODO em CardLivro/IconeLivro).
 @Composable
-private fun SecaoCapa(capaUrl: String?) {
+private fun SecaoCapa(capaUrl: String?, onClick: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(text = "Capa do livro", style = MaterialTheme.typography.titleMedium)
         Surface(
+            onClick = onClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(160.dp),
@@ -196,17 +212,26 @@ private fun SecaoCapa(capaUrl: String?) {
             color = MaterialTheme.colorScheme.secondaryContainer,
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(text = "📷", fontSize = 32.sp)
-                Text(
-                    text = if (capaUrl != null) "Capa selecionada" else "Adicionar capa",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 8.dp)
+            if (capaUrl != null) {
+                AsyncImage(
+                    model = capaUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
                 )
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(text = "📷", fontSize = 32.sp)
+                    Text(
+                        text = "Toque para adicionar uma capa",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
             }
         }
     }
@@ -224,6 +249,7 @@ private fun NovoLivroContentPreview() {
             onTotalPaginasChange = {},
             onGeneroChange = {},
             onStatusChange = {},
+            onEscolherCapaClick = {},
             onSalvarClick = {}
         )
     }
@@ -246,6 +272,7 @@ private fun NovoLivroContentErroPreview() {
             onTotalPaginasChange = {},
             onGeneroChange = {},
             onStatusChange = {},
+            onEscolherCapaClick = {},
             onSalvarClick = {}
         )
     }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,10 +19,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.example.app_leituras.domain.model.StatusLeitura
 import com.example.app_leituras.ui.theme.AppLeiturasTheme
 
@@ -86,23 +90,25 @@ fun CardLivro(
     }
 }
 
-// TODO: quando a busca via Google Books API for integrada (item 10 do planejamento),
-// trocar este placeholder por um carregador de imagem (ex.: Coil) usando capaUrl.
 @Composable
 private fun IconeLivro(capaUrl: String?) {
     Box(
         modifier = Modifier
             .size(40.dp)
-            .background(
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                shape = RoundedCornerShape(10.dp)
-            ),
+            .clip(RoundedCornerShape(10.dp))
+            .background(color = MaterialTheme.colorScheme.secondaryContainer),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = "📖",
-            fontSize = 20.sp
-        )
+        if (capaUrl != null) {
+            AsyncImage(
+                model = capaUrl,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            Text(text = "📖", fontSize = 20.sp)
+        }
     }
 }
 

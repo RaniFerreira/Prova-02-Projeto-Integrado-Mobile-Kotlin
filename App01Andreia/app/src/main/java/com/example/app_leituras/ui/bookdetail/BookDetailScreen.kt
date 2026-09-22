@@ -23,11 +23,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.example.app_leituras.domain.model.Livro
 import com.example.app_leituras.domain.model.Meta
 import com.example.app_leituras.domain.model.Nota
@@ -44,7 +47,7 @@ private const val DIA_MS = 86_400_000L
 
 @Composable
 fun BookDetailScreen(
-    viewModel: BookDetailViewModel,
+    viewModel: BookDetailViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
     onVoltarClick: () -> Unit = {},
     onClicarLerAgora: () -> Unit = {},
@@ -103,7 +106,7 @@ private fun BookDetailContent(
     ) {
         CabecalhoLivro(livro = livro, onVoltarClick = onVoltarClick)
 
-        CapaLivroDetalhe()
+        CapaLivroDetalhe(capaUrl = livro.capaUrl)
 
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(text = "Status", style = MaterialTheme.typography.titleMedium)
@@ -209,10 +212,8 @@ private fun CabecalhoLivro(livro: Livro, onVoltarClick: () -> Unit) {
     }
 }
 
-// TODO: quando a busca via Google Books API for integrada, trocar este placeholder
-// por um carregador de imagem (ex.: Coil) usando capaUrl — mesmo TODO do IconeLivro/CardLivro.
 @Composable
-private fun CapaLivroDetalhe() {
+private fun CapaLivroDetalhe(capaUrl: String?) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -221,17 +222,26 @@ private fun CapaLivroDetalhe() {
         color = MaterialTheme.colorScheme.secondaryContainer,
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(text = "📖", fontSize = 48.sp)
-            Text(
-                text = "Capa",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = 8.dp)
+        if (capaUrl != null) {
+            AsyncImage(
+                model = capaUrl,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
+        } else {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(text = "📖", fontSize = 48.sp)
+                Text(
+                    text = "Capa",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
         }
     }
 }

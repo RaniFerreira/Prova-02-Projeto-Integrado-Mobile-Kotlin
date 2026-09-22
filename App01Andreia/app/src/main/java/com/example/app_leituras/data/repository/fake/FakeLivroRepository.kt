@@ -1,6 +1,9 @@
 package com.example.app_leituras.data.repository.fake
 
+import com.example.app_leituras.data.remote.GoogleBooksRepository
+import com.example.app_leituras.data.remote.RetrofitConfig
 import com.example.app_leituras.domain.model.Livro
+import com.example.app_leituras.domain.model.ResultadoBusca
 import com.example.app_leituras.domain.model.StatusLeitura
 import com.example.app_leituras.domain.repository.LivroRepository
 import java.util.concurrent.atomic.AtomicLong
@@ -13,8 +16,16 @@ import kotlinx.coroutines.flow.update
 /**
  * Fonte de dados fake em memória, para validar o fluxo reativo
  * (Flow -> ViewModel -> UI) antes de plugar o Room de verdade.
+ *
+ * A busca por API (buscarNaApi) é a exceção: em vez de simular resultados
+ * fake, ela delega para o [GoogleBooksRepository], que faz a chamada de
+ * rede de verdade. Essa busca não depende do Room nem dos livros fake
+ * acima, então não há motivo pra fingir aqui — e assim a tela de busca já
+ * é validada com dados reais da API desde já.
  */
-class FakeLivroRepository : LivroRepository {
+class FakeLivroRepository(
+    private val googleBooksRepository: GoogleBooksRepository = GoogleBooksRepository(RetrofitConfig.googleBooksApi)
+) : LivroRepository {
 
     private val proximoId = AtomicLong(7L)
 
@@ -133,6 +144,9 @@ class FakeLivroRepository : LivroRepository {
             lista.map { if (it.id == id) it.copy(status = status) else it }
         }
     }
+
+    override fun buscarNaApi(query: String): Flow<ResultadoBusca> =
+        googleBooksRepository.buscar(query)
 
     private companion object {
         const val DIA = 86_400_000L

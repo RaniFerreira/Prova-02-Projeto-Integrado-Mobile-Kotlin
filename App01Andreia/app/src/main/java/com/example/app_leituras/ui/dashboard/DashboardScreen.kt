@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -34,12 +35,14 @@ import androidx.compose.ui.unit.sp
 import com.example.app_leituras.domain.model.Livro
 import com.example.app_leituras.domain.model.StatusLeitura
 import com.example.app_leituras.ui.components.CardLivro
+import com.example.app_leituras.ui.components.ChipSelecionavel
 import com.example.app_leituras.ui.components.ItemLivroLista
+import com.example.app_leituras.ui.components.rotuloStatus
 import com.example.app_leituras.ui.theme.AppLeiturasTheme
 
 @Composable
 fun DashboardScreen(
-    viewModel: DashboardViewModel,
+    viewModel: DashboardViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
     onLivroClick: (Long) -> Unit = {},
     onAdicionarLivroClick: () -> Unit = {}
@@ -49,6 +52,9 @@ fun DashboardScreen(
         uiState = uiState,
         onLivroClick = onLivroClick,
         onAdicionarLivroClick = onAdicionarLivroClick,
+        onGeneroSelecionado = viewModel::onGeneroSelecionado,
+        onStatusSelecionado = viewModel::onStatusSelecionado,
+        onLimparFiltros = viewModel::onLimparFiltros,
         modifier = modifier
     )
 }
@@ -58,6 +64,9 @@ private fun DashboardContent(
     uiState: DashboardUiState,
     onLivroClick: (Long) -> Unit,
     onAdicionarLivroClick: () -> Unit,
+    onGeneroSelecionado: (String?) -> Unit,
+    onStatusSelecionado: (StatusLeitura?) -> Unit,
+    onLimparFiltros: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -68,6 +77,13 @@ private fun DashboardContent(
         verticalArrangement = Arrangement.spacedBy(28.dp)
     ) {
         CabecalhoTela()
+        FiltrosDashboard(
+            filtro = uiState.filtro,
+            generosDisponiveis = uiState.generosDisponiveis,
+            onGeneroSelecionado = onGeneroSelecionado,
+            onStatusSelecionado = onStatusSelecionado,
+            onLimparFiltros = onLimparFiltros
+        )
         SecaoEmAndamento(livros = uiState.emAndamento, onLivroClick = onLivroClick)
         SecaoListaLivros(
             titulo = "Quero Ler",
@@ -99,6 +115,48 @@ private fun CabecalhoTela() {
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+// Fileira de chips de filtro (status + gênero), logo abaixo do título "Início", conforme o
+// Figma. É de seleção única: "Todos" limpa tudo, e escolher um status ou gênero limpa o outro
+// eixo do filtro (ver comentário em DashboardViewModel.onGeneroSelecionado/onStatusSelecionado).
+@Composable
+private fun FiltrosDashboard(
+    filtro: FiltroState,
+    generosDisponiveis: List<String>,
+    onGeneroSelecionado: (String?) -> Unit,
+    onStatusSelecionado: (StatusLeitura?) -> Unit,
+    onLimparFiltros: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val semFiltro = filtro.generoSelecionado == null && filtro.statusSelecionado == null
+
+    LazyRow(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item {
+            ChipSelecionavel(texto = "Todos", selecionado = semFiltro, onClick = onLimparFiltros)
+        }
+        items(StatusLeitura.entries) { status ->
+            ChipSelecionavel(
+                texto = rotuloStatus(status),
+                selecionado = filtro.statusSelecionado == status,
+                onClick = {
+                    if (filtro.statusSelecionado == status) onLimparFiltros() else onStatusSelecionado(status)
+                }
+            )
+        }
+        items(generosDisponiveis) { genero ->
+            ChipSelecionavel(
+                texto = genero,
+                selecionado = filtro.generoSelecionado == genero,
+                onClick = {
+                    if (filtro.generoSelecionado == genero) onLimparFiltros() else onGeneroSelecionado(genero)
+                }
+            )
+        }
     }
 }
 
@@ -267,7 +325,10 @@ private fun DashboardContentPreview() {
                 lido = livrosMock.filter { it.status == StatusLeitura.LIDO }
             ),
             onLivroClick = {},
-            onAdicionarLivroClick = {}
+            onAdicionarLivroClick = {},
+            onGeneroSelecionado = {},
+            onStatusSelecionado = {},
+            onLimparFiltros = {}
         )
     }
 }
@@ -279,7 +340,57 @@ private fun DashboardContentVazioPreview() {
         DashboardContent(
             uiState = DashboardUiState(),
             onLivroClick = {},
-            onAdicionarLivroClick = {}
+            onAdicionarLivroClick = {},
+            onGeneroSelecionado = {},
+            onStatusSelecionado = {},
+            onLimparFiltros = {}
+        )
+    }
+}
+
+// Demonstra o filtro ativo: chip "Ficção Científica" selecionado (destacado em verde) e o
+// mesmo filtro já aplicado nas 3 seções — só "Duna" (Ficção Científica) sobrevive, então
+// "Em andamento" e "Lido" aparecem vazios, provando que o filtro corta as 3 seções juntas.
+@Preview(name = "Filtro de gênero ativo", showBackground = true)
+@Composable
+private fun DashboardContentFiltroGeneroPreview() {
+    val livrosFiltrados = livrosMock.filter { it.genero == "Ficção Científica" }
+    AppLeiturasTheme {
+        DashboardContent(
+            uiState = DashboardUiState(
+                emAndamento = livrosFiltrados.filter { it.status == StatusLeitura.LENDO },
+                queroLer = livrosFiltrados.filter { it.status == StatusLeitura.QUERO_LER },
+                lido = livrosFiltrados.filter { it.status == StatusLeitura.LIDO },
+                filtro = FiltroState(generoSelecionado = "Ficção Científica")
+            ),
+            onLivroClick = {},
+            onAdicionarLivroClick = {},
+            onGeneroSelecionado = {},
+            onStatusSelecionado = {},
+            onLimparFiltros = {}
+        )
+    }
+}
+
+// Demonstra o filtro de status ativo: chip "Lendo" selecionado — só "1984" sobrevive, então
+// "Quero Ler" e "Lido" aparecem vazios (mesmo princípio do preview acima, eixo diferente).
+@Preview(name = "Filtro de status ativo", showBackground = true)
+@Composable
+private fun DashboardContentFiltroStatusPreview() {
+    val livrosFiltrados = livrosMock.filter { it.status == StatusLeitura.LENDO }
+    AppLeiturasTheme {
+        DashboardContent(
+            uiState = DashboardUiState(
+                emAndamento = livrosFiltrados.filter { it.status == StatusLeitura.LENDO },
+                queroLer = livrosFiltrados.filter { it.status == StatusLeitura.QUERO_LER },
+                lido = livrosFiltrados.filter { it.status == StatusLeitura.LIDO },
+                filtro = FiltroState(statusSelecionado = StatusLeitura.LENDO)
+            ),
+            onLivroClick = {},
+            onAdicionarLivroClick = {},
+            onGeneroSelecionado = {},
+            onStatusSelecionado = {},
+            onLimparFiltros = {}
         )
     }
 }
