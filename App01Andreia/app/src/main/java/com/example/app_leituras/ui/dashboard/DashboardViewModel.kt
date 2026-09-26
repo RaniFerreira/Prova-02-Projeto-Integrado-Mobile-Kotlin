@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
-// Gêneros fixos extraídos dos livros seedados no FakeLivroRepository — ainda não há uma fonte
+// Gêneros fixos extraídos dos livros de exemplo do AppDatabase — ainda não há uma fonte
 // dinâmica (ex.: DISTINCT genero no Room) para alimentar o seletor de filtro.
 val GENEROS_DISPONIVEIS = listOf("Ficção Científica", "Fantasia", "Ficção", "Não-ficção")
 

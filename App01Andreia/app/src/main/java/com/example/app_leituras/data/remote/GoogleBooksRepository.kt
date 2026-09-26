@@ -12,9 +12,8 @@ import retrofit2.HttpException
 
 /**
  * Implementação real (rede de verdade) da busca na Google Books API.
- * Fica separada do FakeLivroRepository porque é a única parte do app que
- * já sai do escopo puramente local: não depende do Room nem dos dados fake,
- * então não faz sentido "fingir" essa chamada.
+ * Fica separada do LivroRepositoryImpl porque é a única parte do app que
+ * sai do escopo local: não depende do Room.
  *
  * Sem valor default no "api": um construtor @Inject com parâmetro default gera, para o
  * Kotlin/Java, dois construtores visíveis (um com o parâmetro, outro sintético sem ele) —

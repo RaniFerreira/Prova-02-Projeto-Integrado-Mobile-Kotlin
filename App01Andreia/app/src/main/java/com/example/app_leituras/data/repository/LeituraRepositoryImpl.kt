@@ -14,9 +14,7 @@ import kotlinx.coroutines.flow.map
 /**
  * Implementação real das sessões de leitura, apoiada no Room (SessaoDao).
  * Depende da abstração [LivroRepository] (não de uma implementação concreta) só para ler o
- * totalPaginas do livro ao calcular o progresso — mesmo Dependency Inversion do
- * FakeLeituraRepository, então a troca não exige mudar nada em quem injeta esta classe além
- * do construtor em si.
+ * totalPaginas do livro ao calcular o progresso (Dependency Inversion).
  */
 class LeituraRepositoryImpl @Inject constructor(
     private val sessaoDao: SessaoDao,
@@ -37,7 +35,7 @@ class LeituraRepositoryImpl @Inject constructor(
     }
 
     // Progresso depende de DUAS fontes reativas independentes — sessões (Room) e o livro em si
-    // (totalPaginas, que pode vir do Room ou, por enquanto, do Fake). combine() reemite sempre
+    // (totalPaginas). combine() reemite sempre
     // que qualquer uma das duas mudar, sem precisar re-consultar a outra manualmente.
     override fun calcularProgresso(livroId: Long): Flow<Float> = combine(
         sessaoDao.observarSessoesPorLivro(livroId),

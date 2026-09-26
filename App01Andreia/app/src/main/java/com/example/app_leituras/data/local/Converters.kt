@@ -9,9 +9,8 @@ class   Converters {
     @TypeConverter
     fun fromStatusLeitura(status: StatusLeitura): String = status.name
 
-    // Tolerante a formatos antigos (ver normalizarStatus) — valueOf() derrubaria o app.
     @TypeConverter
-    fun toStatusLeitura(status: String): StatusLeitura = normalizarStatus(status)
+    fun toStatusLeitura(status: String): StatusLeitura = StatusLeitura.valueOf(status)
 
     @TypeConverter
     fun fromTipoNota(tipo: TipoNota): String = tipo.name

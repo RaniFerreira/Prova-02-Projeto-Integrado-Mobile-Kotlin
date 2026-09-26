@@ -15,8 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Implementação real do catálogo, apoiada no Room (LivroDao) em vez do
- * MutableStateFlow em memória do FakeLivroRepository.
+ * Implementação real do catálogo, apoiada no Room (LivroDao).
  */
 class LivroRepositoryImpl @Inject constructor(
     private val livroDao: LivroDao,
@@ -58,7 +57,7 @@ class LivroRepositoryImpl @Inject constructor(
     override suspend fun avancarPaginaAtual(id: Long, paginaAtual: Int) =
         livroDao.avancarPaginaAtual(id, paginaAtual)
 
-    // Igual ao FakeLivroRepository: a busca por API não depende do Room, então delega direto
+    // A busca por API não depende do Room, então delega direto
     // pro GoogleBooksRepository (chamada de rede real via Retrofit) — ver passo 10.
     override fun buscarNaApi(query: String): Flow<ResultadoBusca> = googleBooksRepository.buscar(query)
 }
