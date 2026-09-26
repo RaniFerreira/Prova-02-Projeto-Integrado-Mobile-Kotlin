@@ -33,6 +33,13 @@ app/src/main/java/com/example/rastreadorprazo/
 └── MainActivity.kt
 ```
 
+## Screenshots
+
+
+| Lista | Detalhes | Calendário |
+|---|---|---|
+|  |  |  |
+
 ## Requisitos
 
 - Android Studio (versão compatível com AGP/Kotlin do projeto)
