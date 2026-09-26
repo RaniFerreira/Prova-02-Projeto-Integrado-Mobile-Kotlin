@@ -6,11 +6,11 @@ Aplicativo Android nativo, desenvolvido em **Kotlin** com **Jetpack Compose**, p
 
 | Dashboard | Detalhes do livro | Sessão de leitura | Definir meta |
 |:---:|:---:|:---:|:---:|
-| <img src="screenshots/dashboard.png" width="200"> | <img src="screenshots/detalhes-livro.png" width="200"> | <img src="screenshots/sessao-leitura.png" width="200"> | <img src="screenshots/definir-meta.png" width="200"> |
+| <img alt="image" src="https://github.com/user-attachments/assets/cd76d069-a258-4aa5-975c-2c52891caee1" width="200" /> |<img alt="image" src="https://github.com/user-attachments/assets/88578290-0389-4a02-a400-c7a9f6183cb9" width="200" /> | <img alt="image" src="https://github.com/user-attachments/assets/a2fa4921-ab64-4809-a00c-bc9a5f0b460a" width="200" /> | <img alt="image" src="https://github.com/user-attachments/assets/91f56172-4284-4bdc-8269-023e8c3e0390" width="200" /> |
 
 | Diário de notas | Buscar livro | Novo livro |
 |:---:|:---:|:---:|
-| <img src="screenshots/diario-notas.png" width="200"> | <img src="screenshots/buscar-livro.png" width="200"> | <img src="screenshots/novo-livro.png" width="200"> |
+| <img alt="image" src="https://github.com/user-attachments/assets/07ad4571-eae3-4352-abe5-d90071ef8f6e" width="200" /> | <img alt="image" src="https://github.com/user-attachments/assets/434ead6b-bb17-4e14-b170-bd4d2ee1046a" width="200" /> | <img alt="image" src="https://github.com/user-attachments/assets/85740026-e490-4ffc-96e4-ae4c51de663f" width="200" /> |
 
 ## Funcionalidades
 
