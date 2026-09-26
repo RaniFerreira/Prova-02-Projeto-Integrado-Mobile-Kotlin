@@ -195,12 +195,17 @@ private fun CampoFormulario(
 
 @Composable
 private fun HistoricoItemCard(registro: CargaHistoricoUiModel) {
+    val carga = if (registro.cargaKg % 1.0 == 0.0) {
+        registro.cargaKg.toInt().toString()
+    } else {
+        registro.cargaKg.toString().replace('.', ',')
+    }
     AppCard {
         SpaceBetweenRow(start = {
             Text(text = registro.dataFormatada, style = AppTextStyles.cardSubtitle, color = TextMuted)
         }, end = {
             Text(
-                text = "${registro.cargaKg} kg - ${registro.series}x${registro.repeticoes}",
+                text = "$carga kg · ${registro.series}x${registro.repeticoes}",
                 style = AppTextStyles.highlightLineLarge,
                 color = TextPrimary
             )
