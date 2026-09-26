@@ -43,8 +43,8 @@ fun BuscaFiltroScreen(viewModel: BuscaFiltroViewModel, onExercicioClick: (Long) 
     Scaffold(containerColor = BgApp) { paddingValues ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             TopBarSection(
-                title = "Buscar exercicios",
-                subtitle = "campo texto + filtro por grupamentoMuscular"
+                title = "Buscar exercícios",
+                subtitle = "Pesquise pelo nome ou filtre por grupamento muscular"
             )
 
             Column(
@@ -60,7 +60,7 @@ fun BuscaFiltroScreen(viewModel: BuscaFiltroViewModel, onExercicioClick: (Long) 
                 OutlinedTextField(
                     value = termoBusca,
                     onValueChange = viewModel::onTermoBuscaChange,
-                    placeholder = { Text("Buscar exercicio...") },
+                    placeholder = { Text("Buscar exercício...") },
                     singleLine = true,
                     shape = RoundedCornerShape(Dimens.searchBarCornerRadius),
                     colors = TextFieldDefaults.colors(
@@ -92,7 +92,7 @@ fun BuscaFiltroScreen(viewModel: BuscaFiltroViewModel, onExercicioClick: (Long) 
 
             UiStateContent(
                 state = resultado,
-                emptyMessage = "Nenhum exercicio encontrado.",
+                emptyMessage = "Nenhum exercício encontrado.",
                 modifier = Modifier.fillMaxSize()
             ) { exercicios ->
                 LazyColumn(
