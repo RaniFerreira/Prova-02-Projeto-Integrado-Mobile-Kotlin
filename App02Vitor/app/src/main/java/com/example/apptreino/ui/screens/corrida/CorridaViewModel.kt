@@ -41,7 +41,11 @@ class CorridaViewModel(
             corridaId = corridaId,
             dataFormatada = formatoData.format(dataRegistro),
             distanciaFormatada = "%.1f km".format(Locale.US, distanciaKm),
-            tempoFormatado = "Tempo: ${minutos}min",
+            tempoFormatado = if (minutos >= 60) {
+                "Tempo: %dh%02dmin".format(minutos / 60, minutos % 60)
+            } else {
+                "Tempo: ${minutos}min"
+            },
             paceFormatado = "Pace: %d'%02d\"/km".format(paceMinutos, paceSegundos)
         )
     }
