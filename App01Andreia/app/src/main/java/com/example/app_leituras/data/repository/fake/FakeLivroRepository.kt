@@ -5,6 +5,7 @@ import com.example.app_leituras.data.remote.RetrofitConfig
 import com.example.app_leituras.domain.model.Livro
 import com.example.app_leituras.domain.model.ResultadoBusca
 import com.example.app_leituras.domain.model.StatusLeitura
+import com.example.app_leituras.domain.model.chaveTituloAutor
 import com.example.app_leituras.domain.repository.LivroRepository
 import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.flow.Flow
@@ -139,9 +140,23 @@ class FakeLivroRepository(
         return id
     }
 
+    override suspend fun buscarExistente(livro: Livro): Livro? {
+        val chave = chaveTituloAutor(livro.titulo, livro.autor)
+        return _livros.value.firstOrNull { existente ->
+            (livro.googleBooksId != null && existente.googleBooksId == livro.googleBooksId) ||
+                chaveTituloAutor(existente.titulo, existente.autor) == chave
+        }
+    }
+
     override suspend fun atualizarStatus(id: Long, status: StatusLeitura) {
         _livros.update { lista ->
             lista.map { if (it.id == id) it.copy(status = status) else it }
+        }
+    }
+
+    override suspend fun avancarPaginaAtual(id: Long, paginaAtual: Int) {
+        _livros.update { lista ->
+            lista.map { if (it.id == id) it.copy(paginaAtual = maxOf(it.paginaAtual, paginaAtual)) else it }
         }
     }
 

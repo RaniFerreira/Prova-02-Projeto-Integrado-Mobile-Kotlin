@@ -46,6 +46,9 @@ import com.example.app_leituras.ui.theme.AppLeiturasTheme
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.math.ceil
+import androidx.compose.material3.Icon
+import androidx.compose.ui.res.painterResource
+import com.example.app_leituras.R
 
 private const val DIA_MS = 86_400_000L
 
@@ -210,11 +213,13 @@ private fun CabecalhoDefinirMeta(editando: Boolean, onVoltarClick: () -> Unit) {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(
-                text = "←",
-                fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.clickable(onClick = onVoltarClick)
+            Icon(
+                painter = painterResource(R.drawable.ic_arrow_back),
+                contentDescription = "Voltar",
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .clickable(onClick = onVoltarClick)
+                    .padding(vertical = 12.dp)
             )
             Text(
                 text = "Definir Meta",
@@ -234,7 +239,12 @@ private fun ResumoLivro(titulo: String, autor: String, paginaAtual: Int, totalPa
                 .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(10.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "📖", fontSize = 20.sp)
+            Icon(
+                painter = painterResource(R.drawable.ic_book),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
         }
         Column {
             Text(text = titulo, style = MaterialTheme.typography.titleMedium)

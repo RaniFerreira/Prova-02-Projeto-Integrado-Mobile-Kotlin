@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
         MetaEntity::class,
         NotaEntity::class
     ],
-    version = 1,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -56,6 +56,10 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     NOME_BANCO
                 )
+                    // v2: índice único em googleBooksId + limpeza de duplicados/status antigos.
+                    // v3: página atual dos livros sincronizada com as sessões já registradas.
+                    // v4: livros que já chegaram à última página marcados como LIDO.
+                    .addMigrations(MIGRACAO_1_2, MIGRACAO_2_3, MIGRACAO_3_4)
                     .addCallback(object : RoomDatabase.Callback() {
                         // Só dispara na primeira vez que o arquivo do banco é criado (não a cada
                         // abertura do app), então é seguro popular aqui sem duplicar dados depois.

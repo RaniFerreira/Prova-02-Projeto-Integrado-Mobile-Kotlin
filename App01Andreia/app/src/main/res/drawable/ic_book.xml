@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- icon/book do Figma (tela Início) — traço, tingido via Icon(tint = ...). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="20"
+    android:viewportHeight="20">
+    <path
+        android:pathData="M10,5.41667C8.75,4.41667 7.08333,3.91667 5,3.91667V14.4167C7.08333,14.4167 8.75,14.9167 10,15.9167C11.25,14.9167 12.9167,14.4167 15,14.4167V3.91667C12.9167,3.91667 11.25,4.41667 10,5.41667Z"
+        android:strokeColor="#FF7BB074"
+        android:strokeWidth="1.33333"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M10,5.41667V15.9167"
+        android:strokeColor="#FF7BB074"
+        android:strokeWidth="1.33333"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

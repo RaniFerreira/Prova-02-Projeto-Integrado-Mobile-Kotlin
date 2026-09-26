@@ -26,8 +26,15 @@ class LeituraRepositoryImpl @Inject constructor(
     override fun observarSessoesPorLivro(livroId: Long): Flow<List<SessaoLeitura>> =
         sessaoDao.observarSessoesPorLivro(livroId).map { lista -> lista.map { it.toDomain() } }
 
-    override suspend fun registrarSessao(sessao: SessaoLeitura): Long =
-        sessaoDao.inserir(sessao.toEntity())
+    // Além de gravar a sessão, avança livros.paginaAtual: é esse campo que o card
+    // "Em andamento" do Dashboard exibe (sem isso ele ficava parado na página do cadastro).
+    // Chegou à última página: o livro passa para LIDO automaticamente.
+    override suspend fun registrarSessao(sessao: SessaoLeitura): Long {
+        val id = sessaoDao.inserir(sessao.toEntity())
+        livroRepository.avancarPaginaAtual(sessao.livroId, sessao.paginaFim)
+        marcarComoLidoSeTerminou(livroRepository, sessao)
+        return id
+    }
 
     // Progresso depende de DUAS fontes reativas independentes — sessões (Room) e o livro em si
     // (totalPaginas, que pode vir do Room ou, por enquanto, do Fake). combine() reemite sempre

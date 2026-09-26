@@ -1,5 +1,6 @@
 package com.example.app_leituras.data.repository.fake
 
+import com.example.app_leituras.data.repository.marcarComoLidoSeTerminou
 import com.example.app_leituras.domain.model.SessaoLeitura
 import com.example.app_leituras.domain.repository.LeituraRepository
 import com.example.app_leituras.domain.repository.LivroRepository
@@ -61,6 +62,8 @@ class FakeLeituraRepository(
         val id = if (sessao.id != 0L) sessao.id else proximoId.getAndIncrement()
         val sessaoSalva = sessao.copy(id = id)
         _sessoes.update { it + sessaoSalva }
+        livroRepository.avancarPaginaAtual(sessao.livroId, sessao.paginaFim)
+        marcarComoLidoSeTerminou(livroRepository, sessao)
         return id
     }
 

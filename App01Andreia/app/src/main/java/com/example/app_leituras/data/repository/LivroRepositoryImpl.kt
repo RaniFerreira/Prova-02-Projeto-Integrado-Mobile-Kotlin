@@ -1,5 +1,6 @@
 package com.example.app_leituras.data.repository
 
+import android.database.sqlite.SQLiteConstraintException
 import com.example.app_leituras.data.local.dao.LivroDao
 import com.example.app_leituras.data.mapper.toDomain
 import com.example.app_leituras.data.mapper.toEntity
@@ -7,6 +8,7 @@ import com.example.app_leituras.data.remote.GoogleBooksRepository
 import com.example.app_leituras.domain.model.Livro
 import com.example.app_leituras.domain.model.ResultadoBusca
 import com.example.app_leituras.domain.model.StatusLeitura
+import com.example.app_leituras.domain.model.chaveTituloAutor
 import com.example.app_leituras.domain.repository.LivroRepository
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -32,10 +34,29 @@ class LivroRepositoryImpl @Inject constructor(
 
     override suspend fun buscar(id: Long): Livro? = livroDao.buscarPorId(id)?.toDomain()
 
-    override suspend fun salvar(livro: Livro): Long = livroDao.inserir(livro.toEntity())
+    // Se o índice único de googleBooksId barrar a inserção (ex.: salvar concorrente do mesmo
+    // livro da API), devolve o id do livro que já está no catálogo em vez de derrubar o app.
+    override suspend fun salvar(livro: Livro): Long = try {
+        livroDao.inserir(livro.toEntity())
+    } catch (e: SQLiteConstraintException) {
+        livro.googleBooksId?.let { livroDao.buscarPorGoogleBooksId(it)?.id } ?: throw e
+    }
+
+    override suspend fun buscarExistente(livro: Livro): Livro? {
+        livro.googleBooksId?.let { id ->
+            livroDao.buscarPorGoogleBooksId(id)?.let { return it.toDomain() }
+        }
+        val chave = chaveTituloAutor(livro.titulo, livro.autor)
+        return livroDao.listarTodos()
+            .firstOrNull { chaveTituloAutor(it.titulo, it.autor) == chave }
+            ?.toDomain()
+    }
 
     override suspend fun atualizarStatus(id: Long, status: StatusLeitura) =
         livroDao.atualizarStatus(id, status.toEntity())
+
+    override suspend fun avancarPaginaAtual(id: Long, paginaAtual: Int) =
+        livroDao.avancarPaginaAtual(id, paginaAtual)
 
     // Igual ao FakeLivroRepository: a busca por API não depende do Room, então delega direto
     // pro GoogleBooksRepository (chamada de rede real via Retrofit) — ver passo 10.

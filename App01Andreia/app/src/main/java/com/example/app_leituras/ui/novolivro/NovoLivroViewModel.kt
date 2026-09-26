@@ -104,6 +104,9 @@ class NovoLivroViewModel @Inject constructor(
 
     fun onSalvarClick() {
         val estado = _uiState.value
+        // O botão fica desabilitado enquanto salva, mas dois toques antes da recomposição
+        // chegariam aqui — sem esta trava, criariam dois registros do mesmo livro.
+        if (estado.salvando || estado.livroSalvoId != null) return
         val camposInvalidos = buildSet {
             if (estado.titulo.isBlank()) add(CampoNovoLivro.TITULO)
             if (estado.autor.isBlank()) add(CampoNovoLivro.AUTOR)
@@ -116,19 +119,20 @@ class NovoLivroViewModel @Inject constructor(
 
         _uiState.update { it.copy(salvando = true) }
         viewModelScope.launch {
-            val id = livroRepository.salvar(
-                Livro(
-                    titulo = estado.titulo.trim(),
-                    autor = estado.autor.trim(),
-                    totalPaginas = estado.totalPaginas.toInt(),
-                    genero = estado.genero.orEmpty(),
-                    capaUrl = estado.capaUrl,
-                    status = estado.status,
-                    paginaAtual = 0,
-                    googleBooksId = estado.googleBooksId,
-                    dataCriacao = System.currentTimeMillis()
-                )
+            val novoLivro = Livro(
+                titulo = estado.titulo.trim(),
+                autor = estado.autor.trim(),
+                totalPaginas = estado.totalPaginas.toInt(),
+                genero = estado.genero.orEmpty(),
+                capaUrl = estado.capaUrl,
+                status = estado.status,
+                paginaAtual = 0,
+                googleBooksId = estado.googleBooksId,
+                dataCriacao = System.currentTimeMillis()
             )
+            // Livro já no catálogo: não cria outro registro (era o que deixava o mesmo livro em
+            // "Quero Ler" e "Em andamento" ao mesmo tempo) — só abre o Book Detail do existente.
+            val id = livroRepository.buscarExistente(novoLivro)?.id ?: livroRepository.salvar(novoLivro)
             _uiState.update { it.copy(salvando = false, livroSalvoId = id) }
         }
     }

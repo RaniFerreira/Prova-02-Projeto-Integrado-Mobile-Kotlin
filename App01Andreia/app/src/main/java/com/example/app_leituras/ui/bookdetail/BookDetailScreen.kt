@@ -1,20 +1,25 @@
 package com.example.app_leituras.ui.bookdetail
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -24,6 +29,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,11 +38,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.example.app_leituras.R
 import com.example.app_leituras.domain.model.Livro
 import com.example.app_leituras.domain.model.Meta
-import com.example.app_leituras.domain.model.Nota
 import com.example.app_leituras.domain.model.StatusLeitura
-import com.example.app_leituras.domain.model.TipoNota
 import com.example.app_leituras.ui.components.BarraProgresso
 import com.example.app_leituras.ui.components.CardPainel
 import com.example.app_leituras.ui.components.ChipSelecionavel
@@ -73,7 +79,6 @@ fun BookDetailScreen(
         progresso = uiState.progresso,
         tempoTotalSegundos = uiState.tempoTotalSegundos,
         meta = uiState.meta,
-        notasRecentes = uiState.notasRecentes,
         onTrocarStatus = viewModel::onTrocarStatus,
         onVoltarClick = onVoltarClick,
         onClicarLerAgora = onClicarLerAgora,
@@ -89,7 +94,6 @@ private fun BookDetailContent(
     progresso: Float,
     tempoTotalSegundos: Long,
     meta: Meta?,
-    notasRecentes: List<Nota>,
     onTrocarStatus: (StatusLeitura) -> Unit,
     onVoltarClick: () -> Unit,
     onClicarLerAgora: () -> Unit,
@@ -102,65 +106,102 @@ private fun BookDetailContent(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         CabecalhoLivro(livro = livro, onVoltarClick = onVoltarClick)
 
         CapaLivroDetalhe(capaUrl = livro.capaUrl)
 
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(text = "Status", style = MaterialTheme.typography.titleMedium)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = "Status",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            // Chips de largura igual e espaçamento uniforme, centralizados (Section - Status do Figma).
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 StatusLeitura.entries.forEach { status ->
                     ChipSelecionavel(
                         texto = rotuloStatus(status),
                         selecionado = livro.status == status,
-                        onClick = { onTrocarStatus(status) }
+                        onClick = { onTrocarStatus(status) },
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 9.dp),
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
         }
 
-        CardPainel {
+        CardPainel(
+            comBorda = true,
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
             BarraProgresso(
                 percentual = progresso,
                 paginaAtual = (progresso * livro.totalPaginas).roundToInt(),
                 totalPaginas = livro.totalPaginas,
-                exibirPercentualAoLado = true
+                exibirPercentualAoLado = true,
+                textoEmDestaque = true
             )
         }
 
-        CardPainel(onClick = onClicarMeta) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "🕐", fontSize = 28.sp)
-                Column {
+        CardPainel(
+            onClick = onClicarMeta,
+            comBorda = true,
+            contentPadding = PaddingValues(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Box(modifier = Modifier.width(88.dp), contentAlignment = Alignment.Center) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_clock),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(56.dp)
+                    )
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         text = formatarTempo(tempoTotalSegundos),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.headlineSmall.copy(fontSize = 22.sp, lineHeight = 28.sp),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = if (meta != null) formatarMeta(meta) else "Definir meta",
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
         }
 
-        CardPainel(onClick = onClicarNotas) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "📓", fontSize = 20.sp)
-                Column {
-                    Text(text = "Notas e Anotações", style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        text = notasRecentes.firstOrNull()?.conteudo ?: "Nenhuma nota ainda",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+        CardPainel(onClick = onClicarNotas, comBorda = true, modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_notebook),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+                Text(
+                    text = "Notas e Anotações",
+                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
 
@@ -180,67 +221,103 @@ private fun BookDetailContent(
     }
 }
 
+// Cabeçalho do Figma: seta à esquerda e, ao lado, "Detalhes" / título / autor + chip de gênero.
 @Composable
 private fun CabecalhoLivro(livro: Livro, onVoltarClick: () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            text = "Detalhes",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Icon(
+            painter = painterResource(R.drawable.ic_arrow_back),
+            contentDescription = "Voltar",
+            tint = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier
+                .clickable(onClick = onVoltarClick)
+                .padding(vertical = 12.dp)
         )
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(
-                text = "←",
-                fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.clickable(onClick = onVoltarClick)
+                text = "Detalhes",
+                style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
                 text = livro.titulo,
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
+                overflow = TextOverflow.Ellipsis
             )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = livro.autor,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                ChipGenero(texto = livro.genero)
+            }
         }
+    }
+}
+
+// Chip de gênero do cabeçalho: fundo verde claro, texto verde (Frame 135:110 do Figma).
+@Composable
+private fun ChipGenero(texto: String) {
+    Surface(
+        shape = RoundedCornerShape(50),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.primary
+    ) {
         Text(
-            text = "${livro.autor} • ${livro.genero}",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            text = texto,
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp, fontWeight = FontWeight.SemiBold),
+            maxLines = 1,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
         )
     }
 }
 
+// Capa em proporção de livro (140x200, ~2:3), centralizada, com borda verde (Cover Placeholder do Figma).
 @Composable
 private fun CapaLivroDetalhe(capaUrl: String?) {
-    Surface(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp),
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+            .padding(vertical = 8.dp),
+        contentAlignment = Alignment.Center
     ) {
-        if (capaUrl != null) {
-            AsyncImage(
-                model = capaUrl,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        } else {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(text = "📖", fontSize = 48.sp)
-                Text(
-                    text = "Capa",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 8.dp)
+        Surface(
+            modifier = Modifier.size(width = 140.dp, height = 200.dp),
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.primary,
+            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+        ) {
+            if (capaUrl != null) {
+                AsyncImage(
+                    model = capaUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
                 )
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_book_open),
+                        contentDescription = null,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Text(
+                        text = "Capa",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    )
+                }
             }
         }
     }
@@ -283,15 +360,6 @@ private fun BookDetailContentPreview() {
             progresso = 0.5f,
             tempoTotalSegundos = 17_160L,
             meta = Meta(id = 1L, livroId = 3L, tempoPrevistoMinutos = 30, dataAlvo = System.currentTimeMillis() + 60L * DIA_MS),
-            notasRecentes = listOf(
-                Nota(
-                    id = 1L,
-                    livroId = 3L,
-                    tipo = TipoNota.CITACAO,
-                    conteudo = "\"A Guerra é Paz. A Liberdade é Escravidão. A Ignorância é Força.\"",
-                    dataHora = 0L
-                )
-            ),
             onTrocarStatus = {},
             onVoltarClick = {},
             onClicarLerAgora = {},
@@ -321,7 +389,6 @@ private fun BookDetailContentSemMetaPreview() {
             progresso = 200f / 464f,
             tempoTotalSegundos = 5_400L,
             meta = null,
-            notasRecentes = emptyList(),
             onTrocarStatus = {},
             onVoltarClick = {},
             onClicarLerAgora = {},

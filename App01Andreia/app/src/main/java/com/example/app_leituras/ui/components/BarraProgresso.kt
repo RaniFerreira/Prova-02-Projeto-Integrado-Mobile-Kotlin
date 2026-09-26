@@ -14,23 +14,30 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.app_leituras.ui.theme.AppLeiturasTheme
+import com.example.app_leituras.ui.theme.VerdePrincipal
+import com.example.app_leituras.ui.theme.VerdeSecundario
 import kotlin.math.roundToInt
 
 // Exibe "X/Y páginas" quando paginaAtual/totalPaginas são informados, senão o percentual.
 // Texto acima da barra e barra de 8dp, seguindo o card "Em andamento" do Figma.
 // exibirPercentualAoLado (usado no Book Detail) mostra "Página X de Y" + "XX%" lado a lado,
 // sem alterar o comportamento padrão já usado no Dashboard/CardLivro.
+// textoEmDestaque (Book Detail no Figma) usa 18sp negrito nesse cabeçalho.
+// Cores fixas da paleta (trilha VerdePrincipal, preenchimento VerdeSecundario) em ambos os temas.
 @Composable
 fun BarraProgresso(
     percentual: Float,
     modifier: Modifier = Modifier,
     paginaAtual: Int? = null,
     totalPaginas: Int? = null,
-    exibirPercentualAoLado: Boolean = false
+    exibirPercentualAoLado: Boolean = false,
+    textoEmDestaque: Boolean = false
 ) {
     val progresso = percentual.coerceIn(0f, 1f)
     Column(
@@ -38,19 +45,24 @@ fun BarraProgresso(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (exibirPercentualAoLado && paginaAtual != null && totalPaginas != null) {
+            val estiloPagina = if (textoEmDestaque) {
+                MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            } else {
+                MaterialTheme.typography.bodyMedium
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = "Página $paginaAtual de $totalPaginas",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = estiloPagina,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = "${(progresso * 100).roundToInt()}%",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary
+                    style = estiloPagina.copy(fontWeight = FontWeight.Bold),
+                    color = VerdeSecundario
                 )
             }
         } else {
@@ -71,8 +83,11 @@ fun BarraProgresso(
                 .fillMaxWidth()
                 .height(8.dp)
                 .clip(RoundedCornerShape(4.dp)),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.secondaryContainer
+            color = VerdeSecundario,
+            trackColor = VerdePrincipal,
+            strokeCap = StrokeCap.Round,
+            gapSize = 0.dp,
+            drawStopIndicator = {}
         )
     }
 }

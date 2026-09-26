@@ -18,7 +18,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,11 +28,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.PlatformTextStyle
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.app_leituras.R
 import com.example.app_leituras.domain.model.Livro
 import com.example.app_leituras.domain.model.StatusLeitura
 import com.example.app_leituras.ui.components.CardLivro
@@ -69,35 +70,55 @@ private fun DashboardContent(
     onLimparFiltros: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(top = 24.dp, bottom = 40.dp, start = 20.dp, end = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(28.dp)
-    ) {
-        CabecalhoTela()
-        FiltrosDashboard(
-            filtro = uiState.filtro,
-            generosDisponiveis = uiState.generosDisponiveis,
-            onGeneroSelecionado = onGeneroSelecionado,
-            onStatusSelecionado = onStatusSelecionado,
-            onLimparFiltros = onLimparFiltros
-        )
-        SecaoEmAndamento(livros = uiState.emAndamento, onLivroClick = onLivroClick)
-        SecaoListaLivros(
-            titulo = "Quero Ler",
-            livros = uiState.queroLer,
-            concluido = false,
-            onLivroClick = onLivroClick,
-            onAdicionarClick = onAdicionarLivroClick
-        )
-        SecaoListaLivros(
-            titulo = "Lido",
-            livros = uiState.lido,
-            concluido = true,
-            onLivroClick = onLivroClick
-        )
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                // Padding inferior extra (FAB 56dp + margem 20dp + folga) para o FAB não cobrir o último item.
+                .padding(top = 24.dp, bottom = 112.dp, start = 20.dp, end = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(28.dp)
+        ) {
+            CabecalhoTela()
+            FiltrosDashboard(
+                filtro = uiState.filtro,
+                generosDisponiveis = uiState.generosDisponiveis,
+                onGeneroSelecionado = onGeneroSelecionado,
+                onStatusSelecionado = onStatusSelecionado,
+                onLimparFiltros = onLimparFiltros
+            )
+            SecaoEmAndamento(livros = uiState.emAndamento, onLivroClick = onLivroClick)
+            SecaoListaLivros(
+                titulo = "Quero Ler",
+                livros = uiState.queroLer,
+                concluido = false,
+                onLivroClick = onLivroClick,
+                onAdicionarClick = onAdicionarLivroClick
+            )
+            SecaoListaLivros(
+                titulo = "Lido",
+                livros = uiState.lido,
+                concluido = true,
+                onLivroClick = onLivroClick
+            )
+        }
+
+        // FAB "Add Book" do Figma: mesma ação do "+" ao lado de "Quero Ler".
+        FloatingActionButton(
+            onClick = onAdicionarLivroClick,
+            shape = CircleShape,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = Color.White,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(20.dp)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_plus),
+                contentDescription = "Adicionar livro",
+                modifier = Modifier.size(24.dp)
+            )
+        }
     }
 }
 
@@ -193,15 +214,11 @@ private fun BotaoAdicionar(onClick: () -> Unit) {
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = "+",
-            color = Color.White,
-            fontSize = 14.sp,
-            lineHeight = 14.sp,
-            fontWeight = FontWeight.Bold,
-            style = LocalTextStyle.current.copy(
-                platformStyle = PlatformTextStyle(includeFontPadding = false)
-            )
+        Icon(
+            painter = painterResource(R.drawable.ic_plus),
+            contentDescription = "Adicionar livro",
+            tint = Color.White,
+            modifier = Modifier.size(14.dp)
         )
     }
 }

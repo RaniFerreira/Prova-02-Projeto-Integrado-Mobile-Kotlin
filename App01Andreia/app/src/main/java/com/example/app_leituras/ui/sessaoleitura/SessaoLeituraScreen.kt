@@ -36,6 +36,9 @@ import com.example.app_leituras.ui.components.CardPainel
 import com.example.app_leituras.ui.theme.AppLeiturasTheme
 import java.text.SimpleDateFormat
 import java.util.Locale
+import androidx.compose.material3.Icon
+import androidx.compose.ui.res.painterResource
+import com.example.app_leituras.R
 
 @Composable
 fun SessaoLeituraScreen(
@@ -78,7 +81,7 @@ private fun SessaoLeituraContent(
     ) {
         CabecalhoSessao(titulo = uiState.tituloLivro, onVoltarClick = onVoltarClick)
 
-        CardPainel {
+        CardPainel(modifier = Modifier.fillMaxWidth()) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     text = "Última página lida",
@@ -94,7 +97,7 @@ private fun SessaoLeituraContent(
             }
         }
 
-        CardPainel {
+        CardPainel(modifier = Modifier.fillMaxWidth()) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -136,7 +139,7 @@ private fun SessaoLeituraContent(
             Text(text = if (uiState.rodando) "⏸ Pausar" else "▶ Iniciar")
         }
 
-        CardPainel {
+        CardPainel(modifier = Modifier.fillMaxWidth()) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(text = "Sessão atual", style = MaterialTheme.typography.titleMedium)
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -183,11 +186,13 @@ private fun CabecalhoSessao(titulo: String, onVoltarClick: () -> Unit) {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(
-                text = "←",
-                fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.clickable(onClick = onVoltarClick)
+            Icon(
+                painter = painterResource(R.drawable.ic_arrow_back),
+                contentDescription = "Voltar",
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .clickable(onClick = onVoltarClick)
+                    .padding(vertical = 12.dp)
             )
             Text(
                 text = titulo,

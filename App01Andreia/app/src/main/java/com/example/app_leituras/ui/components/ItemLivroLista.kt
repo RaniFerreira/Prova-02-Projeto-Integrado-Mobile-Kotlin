@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -20,11 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.app_leituras.R
 import com.example.app_leituras.ui.theme.AppLeiturasTheme
 
 // Linha das seções "Quero Ler" e "Lido" — layout de lista (não card), conforme o Figma:
@@ -49,7 +49,12 @@ fun ItemLivroLista(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(text = "📖", fontSize = 16.sp)
+            Icon(
+                painter = painterResource(R.drawable.ic_book),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(18.dp)
+            )
 
             Column(
                 modifier = Modifier.weight(1f),
@@ -77,21 +82,19 @@ fun ItemLivroLista(
                         .background(color = MaterialTheme.colorScheme.primary, shape = CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "✓",
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        lineHeight = 12.sp,
-                        style = LocalTextStyle.current.copy(
-                            platformStyle = PlatformTextStyle(includeFontPadding = false)
-                        )
+                    Icon(
+                        painter = painterResource(R.drawable.ic_check),
+                        contentDescription = "Lido",
+                        tint = Color.White,
+                        modifier = Modifier.size(14.dp)
                     )
                 }
             } else {
-                Text(
-                    text = "›",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.outline
+                Icon(
+                    painter = painterResource(R.drawable.ic_chevron_right),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
                 )
             }
         }

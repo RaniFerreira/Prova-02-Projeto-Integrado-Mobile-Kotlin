@@ -31,6 +31,12 @@ interface LivroDao {
     @Query("SELECT * FROM livros ORDER BY data_criacao DESC")
     fun observarTodos(): Flow<List<LivroEntity>>
 
+    @Query("SELECT * FROM livros ORDER BY id")
+    suspend fun listarTodos(): List<LivroEntity>
+
+    @Query("SELECT * FROM livros WHERE googleBooksId = :googleBooksId LIMIT 1")
+    suspend fun buscarPorGoogleBooksId(googleBooksId: String): LivroEntity?
+
     @Query("SELECT * FROM livros WHERE status = :status ORDER BY data_criacao DESC")
     fun observarLivrosPorStatus(status: StatusLeitura): Flow<List<LivroEntity>>
 
@@ -47,6 +53,10 @@ interface LivroDao {
 
     @Query("UPDATE livros SET paginaAtual = :paginaAtual WHERE id = :livroId")
     suspend fun atualizarPaginaAtual(livroId: Long, paginaAtual: Int)
+
+    // MAX: uma sessão nunca faz o progresso do livro voltar para trás.
+    @Query("UPDATE livros SET paginaAtual = MAX(paginaAtual, :paginaAtual) WHERE id = :livroId")
+    suspend fun avancarPaginaAtual(livroId: Long, paginaAtual: Int)
 
     @Query("UPDATE livros SET status = :status WHERE id = :livroId")
     suspend fun atualizarStatus(livroId: Long, status: StatusLeitura)

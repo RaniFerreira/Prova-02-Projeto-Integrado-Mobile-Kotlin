@@ -16,7 +16,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -27,10 +26,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.app_leituras.domain.model.Nota
@@ -40,6 +37,10 @@ import com.example.app_leituras.ui.components.ChipSelecionavel
 import com.example.app_leituras.ui.components.TagPilula
 import com.example.app_leituras.ui.theme.AppLeiturasTheme
 import java.util.Calendar
+import androidx.compose.material3.Icon
+import androidx.compose.ui.res.painterResource
+import com.example.app_leituras.R
+import androidx.compose.foundation.layout.size
 
 private val MESES_ABREVIADOS = listOf(
     "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"
@@ -146,11 +147,13 @@ private fun DiarioContent(
 private fun CabecalhoDiario(onVoltarClick: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(
-                text = "←",
-                fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.clickable(onClick = onVoltarClick)
+            Icon(
+                painter = painterResource(R.drawable.ic_arrow_back),
+                contentDescription = "Voltar",
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .clickable(onClick = onVoltarClick)
+                    .padding(vertical = 12.dp)
             )
             Text(
                 text = "Notas & Citações",
@@ -246,13 +249,10 @@ private fun FormularioNovaNota(
 
 @Composable
 private fun TextoIconePlus() {
-    Text(
-        text = "+",
-        fontSize = 24.sp,
-        lineHeight = 24.sp,
-        style = LocalTextStyle.current.copy(
-            platformStyle = PlatformTextStyle(includeFontPadding = false)
-        )
+    Icon(
+        painter = painterResource(R.drawable.ic_plus),
+        contentDescription = "Nova nota",
+        modifier = Modifier.size(24.dp)
     )
 }
 

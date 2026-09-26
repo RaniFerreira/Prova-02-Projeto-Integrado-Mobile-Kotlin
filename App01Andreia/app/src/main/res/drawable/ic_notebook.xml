@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- notebook do Figma (card "Notas e Anotações" no Book Detail). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M1.9992,5.99952H5.9992M1.9992,9.99984H5.9992M1.9992,14.0002H5.9992M1.9992,18.0005H5.9992M15.9992,1.9992V22.0008M5.9992,1.9992H17.9992C19.1038,1.9992 19.9992,2.8947 19.9992,3.99936V20.0006C19.9992,21.1053 19.1038,22.0008 17.9992,22.0008H5.9992C4.89463,22.0008 3.9992,21.1053 3.9992,20.0006V3.99936C3.9992,2.8947 4.89463,1.9992 5.9992,1.9992Z"
+        android:strokeColor="#FF7BB074"
+        android:strokeWidth="2"
+        android:strokeLineCap="round" />
+</vector>

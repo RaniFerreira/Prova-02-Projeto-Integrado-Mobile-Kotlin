@@ -2,9 +2,15 @@ package com.example.app_leituras.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "livros")
+// googleBooksId único: o mesmo livro da API não pode entrar duas vezes no catálogo.
+// (SQLite permite vários NULL num índice único, então cadastros manuais não são afetados.)
+@Entity(
+    tableName = "livros",
+    indices = [Index(value = ["googleBooksId"], unique = true)]
+)
 data class LivroEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,

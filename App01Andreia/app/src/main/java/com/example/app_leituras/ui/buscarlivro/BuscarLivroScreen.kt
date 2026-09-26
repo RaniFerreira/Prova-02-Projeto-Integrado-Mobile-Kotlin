@@ -36,13 +36,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.example.app_leituras.domain.model.LivroBusca
 import com.example.app_leituras.domain.model.ResultadoBusca
 import com.example.app_leituras.ui.theme.AppLeiturasTheme
+import androidx.compose.material3.Icon
+import androidx.compose.ui.res.painterResource
+import com.example.app_leituras.R
 
 @Composable
 fun BuscarLivroScreen(
@@ -135,11 +137,13 @@ private fun BuscarLivroContent(
 @Composable
 private fun CabecalhoBuscarLivro(onVoltarClick: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            text = "←",
-            fontSize = 20.sp,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.clickable(onClick = onVoltarClick)
+        Icon(
+            painter = painterResource(R.drawable.ic_arrow_back),
+            contentDescription = "Voltar",
+            tint = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier
+                .clickable(onClick = onVoltarClick)
+                .padding(vertical = 12.dp)
         )
         Text(
             text = "Buscar por API",
@@ -227,7 +231,12 @@ private fun CapaResultado(capaUrl: String?) {
                 modifier = Modifier.fillMaxSize()
             )
         } else {
-            Text(text = "📖", fontSize = 22.sp)
+            Icon(
+                painter = painterResource(R.drawable.ic_book),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(22.dp)
+            )
         }
     }
 }
