@@ -1,6 +1,6 @@
 # App01Leitura
 
- Adicionar descrição
+Aplicativo Android nativo, desenvolvido em Kotlin com Jetpack Compose, para organizar e acompanhar leituras. Permite montar um catálogo de livros (cadastrados à mão ou buscados na API do Google Books), registrar sessões de leitura com cronômetro, definir metas e manter um diário de notas para cada livro.
 
 # App02Treino
 
