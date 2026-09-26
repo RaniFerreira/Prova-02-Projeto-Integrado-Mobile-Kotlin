@@ -2,6 +2,12 @@
 
 Aplicativo Android nativo, desenvolvido em **Kotlin** com **Jetpack Compose**, para registro e acompanhamento de treinos de academia e corridas. Permite organizar treinos por exercícios, registrar o histórico de cargas levantadas em cada exercício e acompanhar sessões de corrida (distância, tempo e pace).
 
+## Screenshots
+
+| Treinos | Corridas | Buscar | Histórico de carga |
+|:---:|:---:|:---:|:---:|
+| <img src="screenshots/1.png" width="200"> | <img src="screenshots/2.png" width="200"> | <img src="screenshots/3.png" width="200"> | <img src="screenshots/4.png" width="200"> |
+
 ## Funcionalidades
 
 - **Treinos**: criação e listagem de treinos, cada um com seus exercícios.
