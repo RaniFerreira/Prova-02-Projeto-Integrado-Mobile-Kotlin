@@ -43,7 +43,7 @@ fun CorridaScreen(viewModel: CorridaViewModel) {
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             TopBarSection(
                 title = "Corridas",
-                subtitle = "distanciaKm, tempoTotalSegundos, pace calculado"
+                subtitle = "Distância, tempo e pace de cada corrida"
             )
 
             UiStateContent(
