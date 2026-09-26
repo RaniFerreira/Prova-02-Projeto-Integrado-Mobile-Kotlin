@@ -59,8 +59,8 @@ fun HistoricoCargaScreen(viewModel: HistoricoCargaViewModel, onBack: () -> Unit)
             val nomeExercicio = (uiState as? UiState.Success<HistoricoCargaUiState>)?.data?.nomeExercicio
 
             TopBarSection(
-                title = nomeExercicio ?: "Historico de carga",
-                subtitle = "cargaKg, series, repeticoes por data",
+                title = nomeExercicio ?: "Histórico de carga",
+                subtitle = "Carga, séries e repetições por data",
                 onBack = onBack
             )
 
@@ -94,7 +94,7 @@ fun HistoricoCargaScreen(viewModel: HistoricoCargaViewModel, onBack: () -> Unit)
 
                     item {
                         Text(
-                            text = "Historico (mais recente primeiro)",
+                            text = "Histórico (mais recente primeiro)",
                             style = AppTextStyles.highlightLineSmall,
                             color = TextMuted
                         )
