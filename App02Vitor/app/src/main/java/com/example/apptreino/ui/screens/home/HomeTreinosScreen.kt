@@ -92,7 +92,7 @@ fun HomeTreinosScreen(
 private fun FichaTreinoCard(ficha: TreinoComExercicios, onClick: () -> Unit) {
     AppCard(modifier = Modifier.clickable(onClick = onClick)) {
         Text(text = ficha.treino.nome, style = AppTextStyles.cardTitle, color = TextPrimary)
-        Text(text = "${ficha.exercicios.size} exercicios", style = AppTextStyles.cardSubtitle, color = TextMuted)
+        Text(text = if (ficha.exercicios.size == 1) "1 exercício" else "${ficha.exercicios.size} exercícios", style = AppTextStyles.cardSubtitle, color = TextMuted)
     }
 }
 

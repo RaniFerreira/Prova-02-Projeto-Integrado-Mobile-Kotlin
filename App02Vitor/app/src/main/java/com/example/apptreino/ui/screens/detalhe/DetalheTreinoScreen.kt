@@ -48,13 +48,13 @@ fun DetalheTreinoScreen(viewModel: DetalheTreinoViewModel, onExercicioClick: (Lo
 
             TopBarSection(
                 title = tituloTopBar,
-                subtitle = "campo: treinoId (FK) = ${viewModel.treinoId}",
+                subtitle = "Toque em um exercício para ver o histórico de carga",
                 onBack = onBack
             )
 
             UiStateContent(
                 state = uiState,
-                emptyMessage = "Nenhum exercicio cadastrado ainda.",
+                emptyMessage = "Nenhum exercício cadastrado ainda.",
                 modifier = Modifier.fillMaxSize()
             ) { treinoComExercicios ->
                 LazyColumn(
@@ -74,7 +74,7 @@ fun DetalheTreinoScreen(viewModel: DetalheTreinoViewModel, onExercicioClick: (Lo
                         )
                     }
                     item {
-                        PrimaryFab(label = "+ Adicionar exercicio") {
+                        PrimaryFab(label = "+ Adicionar exercício") {
                             mostrarDialogoNovoExercicio = true
                         }
                     }
@@ -113,13 +113,13 @@ private fun NovoExercicioDialog(onConfirmar: (String, String) -> Unit, onCancela
 
     AlertDialog(
         onDismissRequest = onCancelar,
-        title = { Text(text = "Novo exercicio", style = AppTextStyles.cardTitle) },
+        title = { Text(text = "Novo exercício", style = AppTextStyles.cardTitle) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(Dimens.fieldsRowSpacing)) {
                 OutlinedTextField(
                     value = nome,
                     onValueChange = { nome = it },
-                    label = { Text("Nome do exercicio") },
+                    label = { Text("Nome do exercício") },
                     singleLine = true
                 )
                 OutlinedTextField(
