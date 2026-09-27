@@ -32,7 +32,7 @@ Organize e acompanhe suas leituras.
 - 🎯 Metas de leitura
 - 📝 Diário de notas por livro
 
-➡️ [Ver projeto](./https://github.com/RaniFerreira/Prova-02-Projeto-Integrado-Mobile-Kotlin/tree/main/App01Andreia)
+➡️ https://github.com/RaniFerreira/Prova-02-Projeto-Integrado-Mobile-Kotlin/tree/main/App01Andreia
 
 </td>
 <td width="33%" valign="top">
@@ -46,7 +46,7 @@ Registre treinos de academia e corridas.
 - 🏃 Sessões de corrida
 - 🧮 Distância, tempo e pace
 
-➡️ [Ver projeto](./https://github.com/RaniFerreira/Prova-02-Projeto-Integrado-Mobile-Kotlin/tree/main/App02Vitor)
+➡️ https://github.com/RaniFerreira/Prova-02-Projeto-Integrado-Mobile-Kotlin/tree/main/App02Vitor
 
 </td>
 <td width="33%" valign="top">
@@ -60,7 +60,7 @@ Controle contas, faturas e prazos a pagar.
 - 🏷️ Status: pendente, paga ou cancelada
 - 🧾 Faturas e prazos em geral
 
-➡️ [Ver projeto](./https://github.com/RaniFerreira/Prova-02-Projeto-Integrado-Mobile-Kotlin/tree/main/App03Ranielly/RastreadorPrazo)
+➡️ https://github.com/RaniFerreira/Prova-02-Projeto-Integrado-Mobile-Kotlin/tree/main/App03Ranielly/RastreadorPrazo
 
 </td>
 </tr>
